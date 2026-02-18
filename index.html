@@ -5,242 +5,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invito Matrimonio - Giorgia & Luca</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     
     <style>
         :root {
-            --cream: #f9f7f2;
-            --gold: #b08d57;
-            --sage: #8fa48b;
-            --dark: #333333;
-            --white: #ffffff;
+            --cream: #f4f1ea; --gold: #b08d57; --sage: #8fa48b; --dark: #2c2c2c; --white: #ffffff;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: 'Montserrat', sans-serif; 
-            background-color: var(--cream); 
-            color: var(--dark); 
-            line-height: 1.6;
-            text-align: center;
-            overflow-x: hidden;
+            font-family: 'Montserrat', sans-serif; background-color: var(--cream); 
+            color: var(--dark); overflow-x: hidden; 
         }
 
-        h1, h2 { font-family: 'Playfair Display', serif; font-weight: 400; color: var(--gold); }
-
-        /* --- BUSTA INIZIALE --- */
-        #envelope-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--cream); z-index: 9999;
+        /* --- BUSTA REALISTICA FULL SCREEN --- */
+        #envelope-wrapper {
+            position: fixed; inset: 0; background: var(--cream); z-index: 10000;
             display: flex; justify-content: center; align-items: center;
-            transition: transform 1.2s cubic-bezier(0.7, 0, 0.3, 1), opacity 1s;
+            transition: transform 1.2s cubic-bezier(0.8, 0, 0.2, 1);
         }
-        .envelope { 
-            width: 280px; height: 180px; background: #fff; 
-            position: relative; border-radius: 4px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
-            cursor: pointer; 
+        .envelope-real {
+            width: 90%; max-width: 450px; aspect-ratio: 3/2; background: #fff;
+            position: relative; border-radius: 2px; box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            display: flex; justify-content: center; align-items: center;
         }
-        .envelope::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0;
-            border-left: 140px solid transparent; border-right: 140px solid transparent;
-            border-top: 100px solid #f3f3f3; z-index: 2;
+        .envelope-real::after {
+            content: ''; position: absolute; top: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.02) 50.1%);
         }
-        .wax-seal {
-            position: absolute; top: 75px; left: 50%; transform: translateX(-50%);
-            width: 55px; height: 55px; background: var(--sage); border-radius: 50%;
-            z-index: 3; display: flex; justify-content: center; align-items: center;
-            color: white; font-family: 'Playfair Display'; font-size: 18px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        .seal-img {
+            width: 80px; height: 80px; background: var(--sage); border-radius: 50%;
+            z-index: 10; cursor: pointer; display: flex; justify-content: center; align-items: center;
+            color: white; font-family: 'Playfair Display'; font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.2);
         }
 
-        /* --- HERO SECTION --- */
-        .hero { 
-            padding: 80px 20px; 
-            background: linear-gradient(rgba(249,247,242,0.7), var(--cream)), url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000') no-repeat center; 
-            background-size: cover; 
+        /* --- SEZIONI FULL SCREEN --- */
+        section { 
+            height: 100vh; width: 100%; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 40px 20px;
+            scroll-snap-align: start; position: relative;
         }
-        .names { font-size: 2.8rem; margin-bottom: 5px; }
-        .hero-date { letter-spacing: 2px; text-transform: uppercase; font-size: 0.8rem; }
+        h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); margin-bottom: 20px; }
 
-        /* --- COUNTDOWN --- */
-        .section { padding: 40px 20px; }
-        .countdown { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-        .count-item span { display: block; font-size: 1.5rem; font-family: 'Playfair Display'; border-bottom: 1px solid var(--gold); min-width: 40px; }
-        .count-item label { font-size: 0.6rem; letter-spacing: 1px; }
+        /* --- HERO --- */
+        .hero { background: linear-gradient(to bottom, rgba(244,241,234,0.3), var(--cream)), url('https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=1000') no-repeat center center; background-size: cover; }
+        .hero h1 { font-family: 'Playfair Display', serif; font-size: 3.5rem; color: var(--gold); }
 
-        /* --- TIMELINE CON ICONE --- */
-        .timeline { max-width: 400px; margin: 0 auto; text-align: left; padding: 20px; }
-        .event { position: relative; padding-left: 60px; margin-bottom: 35px; }
-        .event i { 
-            position: absolute; left: 10px; top: 5px; 
-            font-size: 24px; color: var(--gold); 
-        }
-        .event-time { font-weight: bold; color: var(--gold); display: block; font-size: 0.9rem; }
-        .event-title { font-family: 'Playfair Display'; font-size: 1.1rem; }
+        /* --- COUNTDOWN & CALENDAR --- */
+        .countdown-grid { display: flex; gap: 15px; margin: 20px 0; }
+        .count-box { background: white; padding: 15px; border-radius: 8px; min-width: 70px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .count-box span { display: block; font-size: 1.8rem; font-family: 'Playfair Display'; }
 
-        /* --- SELETTORE MAPPE SCORREVOLE --- */
-        .map-selector-box {
-            background: #ebebeb; border-radius: 30px; width: 300px; 
-            margin: 20px auto; position: relative; height: 48px; display: flex; align-items: center;
-        }
-        .selector-bg {
-            position: absolute; width: 146px; height: 38px; background: white;
-            top: 5px; left: 5px; border-radius: 25px; transition: 0.4s ease; z-index: 1;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .map-selector-box button {
-            flex: 1; border: none; background: transparent; z-index: 2;
-            font-family: 'Montserrat'; font-weight: 500; cursor: pointer; color: #777; transition: 0.3s;
-        }
-        .map-selector-box button.active-btn { color: var(--gold); }
-        .map-selector-box.slide-right .selector-bg { transform: translateX(144px); }
-        .map-info { display: none; margin-top: 25px; animation: fadeIn 0.5s; }
-        .map-info.active { display: block; }
+        /* --- LOCATIONS CON MINI-MAPPA --- */
+        .map-selector { display: flex; background: #e0e0e0; border-radius: 25px; width: 280px; margin-bottom: 20px; padding: 4px; position: relative; }
+        .map-selector button { flex: 1; border: none; background: transparent; z-index: 2; cursor: pointer; font-size: 0.75rem; font-weight: 600; padding: 10px; }
+        .selector-bg { position: absolute; width: 136px; height: 37px; background: white; border-radius: 20px; transition: 0.4s; z-index: 1; }
+        .mini-map { width: 100%; max-width: 350px; height: 180px; border-radius: 12px; margin-top: 15px; overflow: hidden; border: 4px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .mini-map iframe { width: 100%; height: 100%; border: 0; }
 
-        /* --- IBAN CARD --- */
-        .iban-card { 
-            background: white; padding: 30px; border-radius: 12px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.04); max-width: 360px; margin: 0 auto; 
-        }
-        .btn { 
-            display: inline-block; padding: 14px 25px; margin-top: 15px; 
-            border: 1px solid var(--gold); color: var(--gold); 
-            text-decoration: none; border-radius: 6px; font-size: 0.8rem; 
-            text-transform: uppercase; cursor: pointer; background: transparent; transition: 0.3s;
-        }
-        .btn-copy { background: var(--sage); color: white; border: none; width: 100%; }
+        /* --- IBAN GIFT ANIMATION --- */
+        .gift-container { position: relative; width: 250px; height: 150px; cursor: pointer; }
+        .gift-box { width: 100%; height: 100%; background: var(--sage); border-radius: 8px; position: relative; z-index: 2; transition: 0.5s; display: flex; justify-content: center; align-items: center; color: white; font-weight: bold; }
+        .iban-card-hidden { position: absolute; top: 10px; left: 10px; right: 10px; background: white; padding: 20px; border-radius: 5px; z-index: 1; transition: 0.8s; transform: translateY(0); opacity: 0; }
+        .gift-container.open .gift-box { transform: translateY(80px); opacity: 0.5; }
+        .gift-container.open .iban-card-hidden { transform: translateY(-110px); opacity: 1; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* --- BOTTONI --- */
+        .btn { padding: 12px 25px; border: 1px solid var(--gold); color: var(--gold); text-decoration: none; border-radius: 50px; font-size: 0.8rem; letter-spacing: 1px; transition: 0.3s; background: white; display: inline-block; margin-top: 10px; }
+        .btn:hover { background: var(--gold); color: white; }
+
+        /* --- RSVP FORM --- */
+        .rsvp-form { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 400px; text-align: left; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .rsvp-form label { font-size: 0.8rem; font-weight: 600; color: #777; }
+        .rsvp-form input, .rsvp-form select, .rsvp-form textarea { width: 100%; padding: 12px; margin: 8px 0 18px; border: 1px solid #eee; border-radius: 8px; background: #f9f9f9; }
+
+        /* Utility */
+        .hidden-map { display: none; }
+        .active-map { display: block; }
     </style>
 </head>
 <body>
 
-    <div id="envelope-overlay" onclick="handleOpen()">
-        <div class="envelope">
-            <div class="wax-seal">G&L</div>
+    <div id="envelope-wrapper" onclick="openEnvelope()">
+        <div class="envelope-real">
+            <div class="seal-img">G&L</div>
+            <p style="position:absolute; bottom:20px; font-size: 0.7rem; color: #999;">Tocca per aprire</p>
         </div>
     </div>
 
     <section class="hero">
-        <h1 class="names">Giorgia & Luca</h1>
-        <p class="hero-date">6 Giugno 2026 • Capaccio Paestum</p>
+        <h1 data-aos="zoom-in">Giorgia & Luca</h1>
+        <p data-aos="fade-up" data-aos-delay="300" style="letter-spacing: 3px;">SI SPOSANO</p>
     </section>
 
     <section class="section">
-        <h2>Il Grande Giorno</h2>
-        <div class="countdown">
-            <div class="count-item"><span id="d">00</span><label>GIORNI</label></div>
-            <div class="count-item"><span id="h">00</span><label>ORE</label></div>
-            <div class="count-item"><span id="m">00</span><label>MIN</label></div>
-            <div class="count-item"><span id="s">00</span><label>SEC</label></div>
+        <h2 data-aos="drop-in">Salva la Data</h2>
+        <p>6 GIUGNO 2026</p>
+        <div class="countdown-grid" data-aos="fade-up">
+            <div class="count-box"><span id="days">00</span><label>GIORNI</label></div>
+            <div class="count-box"><span id="hours">00</span><label>ORE</label></div>
+            <div class="count-box"><span id="mins">00</span><label>MIN</label></div>
         </div>
+        <a href="https://www.google.com/calendar/render?action=TEMPLATE&text=Matrimonio+Giorgia+e+Luca&dates=20260606T140000Z/20260606T230000Z&details=Non+mancate!&location=Tenuta+Le+Trabe,+Paestum" target="_blank" class="btn" data-aos="fade-up">
+            <i class="fa-regular fa-calendar-check"></i> AGGIUNGI AL CALENDARIO
+        </a>
     </section>
 
     <section class="section">
-        <h2>Programma</h2>
-        <div class="timeline">
-            <div class="event">
-                <i class="fa-solid fa-church"></i>
-                <span class="event-time">16:00</span>
-                <span class="event-title">La Cerimonia</span>
-                <p>Chiesa Madre dell'Annunziata</p>
+        <h2 data-aos="drop-in">Le Location</h2>
+        <div class="map-selector" data-aos="fade-up">
+            <div class="selector-bg" id="map-bg"></div>
+            <button onclick="toggleMap('chiesa', 0)">CHIESA</button>
+            <button onclick="toggleMap('ricevimento', 135)">RICEVIMENTO</button>
+        </div>
+        
+        <div id="chiesa-box" class="active-map" data-aos="fade-up">
+            <p>Chiesa Madre, Capaccio Paestum</p>
+            <div class="mini-map">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3036.6!2d15.0!3d40.4!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDI0JzAwLjAiTiAxNcKwMDAnMDAuMCJF!5e0!3m2!1sit!2sit!4v123456789"></iframe>
             </div>
-            <div class="event">
-                <i class="fa-solid fa-champagne-glasses"></i>
-                <span class="event-time">19:00</span>
-                <span class="event-title">Il Ricevimento</span>
-                <p>Tenuta Le Trabe</p>
+            <a href="https://maps.app.goo.gl/xxx" class="btn">VAI A DESTINAZIONE</a>
+        </div>
+
+        <div id="ricevimento-box" class="hidden-map">
+            <p>Tenuta Le Trabe, Paestum</p>
+            <div class="mini-map">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3037.6!2d15.0!3d40.4!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDI0JzAwLjAiTiAxNcKwMDAnMDAuMCJF!5e0!3m2!1sit!2sit!4v123456789"></iframe>
             </div>
-            <div class="event">
-                <i class="fa-solid fa-cake-candles"></i>
-                <span class="event-time">01:00</span>
-                <span class="event-title">Taglio Torta</span>
-                <p>Gran finale dolce</p>
+            <a href="https://maps.app.goo.gl/yyy" class="btn">VAI A DESTINAZIONE</a>
+        </div>
+    </section>
+
+    <section class="section">
+        <h2 data-aos="drop-in">Un Pensiero per noi</h2>
+        <div class="gift-container" id="gift" onclick="toggleGift()" data-aos="zoom-in">
+            <div class="iban-card-hidden">
+                <p style="font-size: 0.7rem; color: var(--gold);">IBAN GIORGIA E LUCA</p>
+                <p id="iban" style="font-family: monospace; font-size: 0.85rem; margin: 10px 0;">IT00X01234567890123456789012</p>
+                <button onclick="copyIban()" style="border:none; background:var(--gold); color:white; padding:5px 10px; border-radius:4px; font-size:0.7rem;">COPIA</button>
+            </div>
+            <div class="gift-box">
+                <i class="fa-solid fa-gift" style="font-size: 2rem; margin-bottom: 5px;"></i>
+                <span>APRI IL REGALO</span>
             </div>
         </div>
     </section>
 
     <section class="section">
-        <h2>Le Location</h2>
-        <div class="map-selector-box" id="mapToggle">
-            <div class="selector-bg"></div>
-            <button id="btn1" class="active-btn" onclick="toggleLocation('chiesa')">CHIESA</button>
-            <button id="btn2" onclick="toggleLocation('ricevimento')">RICEVIMENTO</button>
-        </div>
-
-        <div id="info-chiesa" class="map-info active">
-            <p>Piazza della Basilica, Capaccio Paestum (SA)</p>
-            <a href="LINK_GOOGLE_MAPS_CHIESA" class="btn">Apri Mappa</a>
-        </div>
-        <div id="info-ricevimento" class="map-info">
-            <p>Via Capo di Fiume, 4, Capaccio Paestum (SA)</p>
-            <a href="LINK_GOOGLE_MAPS_RICEVIMENTO" class="btn">Apri Mappa</a>
-        </div>
-    </section>
-
-    <section class="section">
-        <h2>Il Vostro Regalo</h2>
-        <div class="iban-card">
-            <p style="font-size: 0.9rem; margin-bottom: 10px;">Se desiderate contribuire al nostro sogno:</p>
-            <span id="iban" style="font-family: monospace; font-weight: bold; font-size: 1rem; color: var(--gold);">IT00 X000 0000 0000 0000 0000 000</span>
-            <button class="btn btn-copy" onclick="copyIban()" id="copyBtn">Copia IBAN</button>
+        <h2 data-aos="drop-in">Conferma Presenza</h2>
+        <div class="rsvp-form" data-aos="fade-up">
+            <form>
+                <label>NOME E COGNOME</label>
+                <input type="text" placeholder="Scrivi qui..." required>
+                
+                <label>PARTECIPERAI?</label>
+                <select>
+                    <option>Sì, con piacere!</option>
+                    <option>Sì, saremo in due</option>
+                    <option>No, purtroppo</option>
+                </select>
+                
+                <label>INTOLLERANZE / NOTE</label>
+                <textarea rows="3" placeholder="Celiachia, allergie..."></textarea>
+                
+                <button type="button" class="btn" style="width:100%; background:var(--dark); color:white; border:none;">INVIA CONFERMA</button>
+            </form>
         </div>
     </section>
 
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        // Funzione Apertura Busta
-        function handleOpen() {
-            const overlay = document.getElementById('envelope-overlay');
-            overlay.style.transform = 'translateY(-100%)';
-            overlay.style.opacity = '0';
-            setTimeout(() => overlay.remove(), 1200);
+        AOS.init({ duration: 1000, once: true });
+
+        function openEnvelope() {
+            document.getElementById('envelope-wrapper').style.transform = 'translateY(-100%)';
         }
 
-        // Countdown Dinamico
-        const target = new Date("June 6, 2026 16:00:00").getTime();
-        setInterval(() => {
-            const now = new Date().getTime();
-            const diff = target - now;
-            document.getElementById("d").innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
-            document.getElementById("h").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            document.getElementById("m").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            document.getElementById("s").innerText = Math.floor((diff % (1000 * 60)) / 1000);
-        }, 1000);
-
-        // Selettore Mappe
-        function toggleLocation(loc) {
-            const box = document.getElementById('mapToggle');
-            const cInfo = document.getElementById('info-chiesa');
-            const rInfo = document.getElementById('info-ricevimento');
-            const b1 = document.getElementById('btn1');
-            const b2 = document.getElementById('btn2');
-
-            if(loc === 'ricevimento') {
-                box.classList.add('slide-right');
-                cInfo.classList.remove('active');
-                rInfo.classList.add('active');
-                b1.classList.remove('active-btn');
-                b2.classList.add('active-btn');
+        function toggleMap(type, pos) {
+            document.getElementById('map-bg').style.transform = `translateX(${pos}px)`;
+            if(type === 'chiesa') {
+                document.getElementById('chiesa-box').classList.replace('hidden-map', 'active-map');
+                document.getElementById('ricevimento-box').classList.replace('active-map', 'hidden-map');
             } else {
-                box.classList.remove('slide-right');
-                rInfo.classList.remove('active');
-                cInfo.classList.add('active');
-                b2.classList.remove('active-btn');
-                b1.classList.add('active-btn');
+                document.getElementById('ricevimento-box').classList.replace('hidden-map', 'active-map');
+                document.getElementById('chiesa-box').classList.replace('active-map', 'hidden-map');
             }
         }
 
-        // Copia IBAN
-        function copyIban() {
-            const text = document.getElementById("iban").innerText;
-            navigator.clipboard.writeText(text);
-            const btn = document.getElementById("copyBtn");
-            btn.innerText = "Copiato! ✓";
-            setTimeout(() => btn.innerText = "Copia IBAN", 2000);
+        function toggleGift() {
+            document.getElementById('gift').classList.toggle('open');
         }
+
+        function copyIban() {
+            const iban = document.getElementById('iban').innerText;
+            navigator.clipboard.writeText(iban);
+            alert("IBAN copiato!");
+        }
+
+        // Countdown
+        const weddingDate = new Date("June 6, 2026 16:30:00").getTime();
+        setInterval(() => {
+            const now = new Date().getTime();
+            const d = weddingDate - now;
+            document.getElementById("days").innerText = Math.floor(d / (1000*60*60*24));
+            document.getElementById("hours").innerText = Math.floor((d % (1000*60*60*24)) / (1000*60*60));
+            document.getElementById("mins").innerText = Math.floor((d % (1000*60*60)) / (1000*60));
+        }, 1000);
     </script>
 </body>
 </html>
