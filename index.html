@@ -11,40 +11,48 @@
     
     <style>
         :root {
-            --cream: #fdfbf7; --gold: #b08d57; --sage: #7a8d76; --dark: #2c2c2c; --white: #ffffff;
-            --seal: #8b2635; /* Rosso ceralacca classico, puoi metterlo verde #4a5d4a */
+            --cream: #fcfaf5; --gold: #b08d57; --sage: #7a8d76; --dark: #2c2c2c;
+            --wax: #8b2635; /* Colore ceralacca */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--cream); color: var(--dark); overflow-x: hidden; }
 
-        /* --- 1. SCENA BUSTA 3D REALISTICA --- */
-        #opening-scene {
+        /* --- 1. BUSTA 3D REALISTICA (FULL SCREEN) --- */
+        #envelope-scene {
             position: fixed; inset: 0; background: var(--cream); z-index: 10000;
             display: flex; justify-content: center; align-items: center;
-            perspective: 1000px; transition: 1.5s ease-in-out;
+            perspective: 1200px; transition: 1.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .envelope-container { position: relative; width: 320px; height: 200px; transform-style: preserve-3d; cursor: pointer; transition: 0.5s; }
-        .envelope-bottom { position: absolute; width: 100%; height: 100%; background: #fdfdfd; border: 1px solid #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .envelope {
+            position: relative; width: 340px; height: 230px;
+            background: #ffffff; border-radius: 2px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            transform-style: preserve-3d; transition: transform 0.8s;
+        }
+        /* Lembo superiore */
         .flap {
             position: absolute; top: 0; width: 100%; height: 100%;
-            background: #f9f9f9; border: 1px solid #ddd;
-            clip-path: polygon(0 0, 100% 0, 50% 50%);
-            transform-origin: top; transition: 1s; z-index: 5;
+            background: #f9f9f9; border: 1px solid #eee;
+            clip-path: polygon(0 0, 100% 0, 50% 55%);
+            transform-origin: top; transition: 1s transform cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
         }
+        /* Ceralacca */
         .seal {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            width: 60px; height: 60px; background: var(--seal); border-radius: 50%;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.4);
-            z-index: 6; display: flex; justify-content: center; align-items: center;
-            color: white; font-family: 'Playfair Display'; font-size: 20px;
-            background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent);
+            position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%);
+            width: 65px; height: 65px; background: var(--wax); border-radius: 50%;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.4), 0 5px 10px rgba(0,0,0,0.3);
+            z-index: 10; cursor: pointer; display: flex; justify-content: center; 
+            align-items: center; color: white; font-family: 'Playfair Display'; 
+            font-size: 22px; transition: 0.5s;
+            background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent);
         }
-        /* Animazione apertura */
-        .open-scene .flap { transform: rotateX(180deg); z-index: 1; }
-        .open-scene .seal { opacity: 0; transition: 0.3s; }
-        .exit-scene { transform: translateY(-100%) scale(1.1); opacity: 0; pointer-events: none; }
+        /* Classi di animazione */
+        .is-open .flap { transform: rotateX(180deg); z-index: 1; }
+        .is-open .seal { opacity: 0; pointer-events: none; }
+        .is-hidden { transform: translateY(-120%) scale(0.8); opacity: 0; pointer-events: none; }
 
         /* --- 2. SEZIONI FULL SCREEN CON CORNICE --- */
         section { 
@@ -52,57 +60,33 @@
             justify-content: center; align-items: center; padding: 40px;
             scroll-snap-align: start; position: relative;
         }
-        .section-frame {
-            position: absolute; inset: 20px; border: 1px solid var(--gold);
-            opacity: 0.3; pointer-events: none; z-index: 0;
+        .section-border {
+            position: absolute; inset: 20px; border: 1px solid rgba(176, 141, 87, 0.2);
+            pointer-events: none; z-index: 1;
         }
-        .content-box { position: relative; z-index: 2; max-width: 500px; width: 100%; }
-        h2 { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--gold); margin-bottom: 25px; }
+        .content { position: relative; z-index: 2; width: 100%; max-width: 450px; text-align: center; }
 
-        /* --- COUNTDOWN & MAPPE --- */
-        .count-grid { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
-        .count-item { background: white; padding: 10px; border-radius: 4px; min-width: 65px; border: 1px solid #f0e6d6; }
+        /* --- LOCATIONS & MAPPE --- */
+        .map-card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-top: 20px; }
+        .map-frame { width: 100%; height: 180px; border-radius: 10px; overflow: hidden; margin-bottom: 15px; border: 1px solid #eee; }
+        .map-frame iframe { width: 100%; height: 100%; border: 0; }
         
-        .map-selector { display: flex; background: #eee; border-radius: 25px; padding: 3px; margin: 20px auto; width: 260px; }
-        .map-selector button { flex: 1; border: none; background: transparent; padding: 8px; font-size: 0.7rem; cursor: pointer; font-weight: 600; z-index: 2; }
-        .map-selector .active-tab { background: white; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--gold); }
-        .mini-map { width: 100%; height: 160px; border-radius: 10px; margin: 15px 0; border: 2px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.05); overflow: hidden; }
-
-        /* --- IBAN BUSTA REGALO --- */
-        .gift-area { margin-top: 30px; position: relative; height: 180px; }
-        .mini-envelope {
-            width: 200px; height: 120px; background: var(--sage); margin: 0 auto;
-            position: relative; border-radius: 5px; cursor: pointer; z-index: 5;
-            display: flex; justify-content: center; align-items: center; color: white;
+        /* --- IBAN "LETTERA" --- */
+        .gift-container { position: relative; width: 100%; height: 200px; margin-top: 20px; }
+        .gift-envelope { 
+            width: 240px; height: 140px; background: var(--sage); margin: 0 auto;
+            border-radius: 8px; cursor: pointer; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: white; position: relative; z-index: 5;
         }
-        .iban-card {
-            position: absolute; width: 180px; background: white; padding: 15px;
-            top: 5px; left: 50%; transform: translateX(-50%);
-            transition: 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 2; opacity: 0; border: 1px solid #eee; font-size: 0.8rem;
+        .iban-letter {
+            position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+            width: 210px; background: #fff; padding: 20px; border: 1px solid #eee;
+            transition: 0.8s cubic-bezier(0.17, 0.88, 0.32, 1.27); z-index: 2; opacity: 0;
         }
-        .gift-area.revealed .iban-card { transform: translateX(-50%) translateY(-100px); opacity: 1; box-shadow: 0 -10px 20px rgba(0,0,0,0.1); }
+        .revealed .iban-letter { transform: translateX(-50%) translateY(-110px); opacity: 1; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 
-        /* --- RSVP FORM --- */
-        .rsvp-form { text-align: left; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-height: 80vh; overflow-y: auto; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 0.7rem; font-weight: 600; color: #888; margin-bottom: 5px; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 6px; background: #fafafa; font-family: inherit; }
-        .dietary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .check-item { font-size: 0.7rem; display: flex; align-items: center; gap: 5px; }
-        .check-item input { width: auto; }
-
-        .btn { padding: 12px 20px; border: 1px solid var(--gold); color: var(--gold); text-decoration: none; border-radius: 50px; font-size: 0.7rem; letter-spacing: 1px; background: white; cursor: pointer; transition: 0.3s; }
-        .btn:hover { background: var(--gold); color: white; }
-    </style>
-</head>
-<body>
-
-    <div id="opening-scene">
-        <div class="envelope-container" id="env" onclick="startOpening()">
-            <div class="flap"></div>
-            <div class="seal">G&L</div>
-            <div class="envelope-bottom"></div>
-        </div>
-        <p style="position:absolute; bottom:15%; font-size:
-            
+        /* --- FORM RSVP --- */
+        .rsvp-form { text-align: left; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); max-height: 75vh; overflow-y: auto; }
+        .form-row { margin-bottom: 15px; }
+        .form-row label { display: block; font-size: 0.75rem; font-weight: 600; color: #7
+                         
