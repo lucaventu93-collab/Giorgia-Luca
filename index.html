@@ -1,236 +1,194 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Giorgia & Luca - Wedding</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <style>
-        :root { --cream: #fcfaf5; --gold: #b08d57; --sage: #8fa48b; --wax: #8b2635; --dark: #333; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Montserrat', sans-serif; background: var(--cream); color: var(--dark); overflow-x: hidden; }
-        body.locked { height: 100vh; overflow: hidden; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giorgia & Luca</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--cream:#fcfaf5;--gold:#b08d57;--sage:#8fa48b;--wax:#8b2635;--dark:#333;--champagne:#f7e7c4;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Montserrat;background:var(--cream);color:var(--dark);overflow:hidden}
 
-        /* --- BUSTA 3D --- */
-        #intro-overlay {
-            position: fixed; inset: 0; background: #e8e4db; z-index: 10000;
-            display: flex; justify-content: center; align-items: center; perspective: 1500px;
-            transition: 1s ease-in-out;
-        }
-        .envelope {
-            width: 320px; height: 220px; background: white; position: relative;
-            transform-style: preserve-3d; box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        .flap {
-            position: absolute; top: 0; width: 100%; height: 100%;
-            background: #f4f4f4; clip-path: polygon(0 0, 100% 0, 50% 50%);
-            transform-origin: top; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1); z-index: 4;
-            border-bottom: 1px solid #ddd;
-        }
-        .seal {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 60px; height: 60px; background: var(--wax); border-radius: 50%;
-            z-index: 5; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            color: white; font-family: 'Playfair Display'; font-weight: bold;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.3);
-            background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2), transparent);
-        }
-        .open .flap { transform: rotateX(180deg); z-index: 1; }
-        .open .seal { opacity: 0; pointer-events: none; }
+/* ===== INTRO ENVELOPE ===== */
+#intro{
+position:fixed;inset:0;background:#e8e4db;z-index:9999;
+display:flex;justify-content:center;align-items:center;perspective:1800px;
+}
+.envelope{
+width:420px;height:280px;position:relative;transform-style:preserve-3d;
+transform:rotateX(12deg);
+}
+.env-back{
+position:absolute;inset:0;background:linear-gradient(145deg,#fff,#eaeaea);
+border-radius:8px;box-shadow:0 40px 80px rgba(0,0,0,.35);
+}
+.flap{
+position:absolute;top:0;width:100%;height:55%;
+background:linear-gradient(#fafafa,#dcdcdc);
+clip-path:polygon(0 0,100% 0,50% 100%);
+transform-origin:top;transition:1.2s cubic-bezier(.22,1,.36,1);z-index:5;
+}
+.letter{
+position:absolute;width:90%;height:85%;left:5%;bottom:5%;
+background:white;border-radius:4px;transform:translateY(0);
+transition:1.2s ease;z-index:2;
+}
+.seal{
+position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+width:70px;height:70px;border-radius:50%;
+background:radial-gradient(circle at 30% 30%,#b02a37,#64121c);
+box-shadow:inset 0 0 10px rgba(0,0,0,.6),0 10px 25px rgba(0,0,0,.5);
+color:#fff;font-family:'Playfair Display';font-size:1.4rem;
+display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:6;
+}
+.open .flap{transform:rotateX(180deg)}
+.open .letter{transform:translateY(-160px)}
+.open .seal{opacity:0;pointer-events:none}
 
-        /* --- SEZIONI --- */
-        section { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; scroll-snap-align: start; }
-        .section-frame { position: absolute; inset: 15px; border: 1px solid rgba(176,141,87,0.3); pointer-events: none; }
-        h2 { font-family: 'Playfair Display'; font-size: 2.2rem; color: var(--gold); margin-bottom: 20px; }
+/* PARTICLES */
+canvas{position:absolute;inset:0;pointer-events:none}
 
-        /* --- COUNTDOWN --- */
-        .countdown { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: 100%; max-width: 400px; }
-        .count-box { background: white; padding: 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .count-box span { display: block; font-size: 1.5rem; font-family: 'Playfair Display'; color: var(--gold); }
-        .count-box label { font-size: 0.6rem; font-weight: 600; }
+/* ===== SITE ===== */
+main{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory}
+section{
+height:100vh;scroll-snap-align:start;
+display:flex;flex-direction:column;justify-content:center;align-items:center;
+transition:.9s ease;opacity:0;transform:translateY(120px) scale(.9);
+}
+section.show{opacity:1;transform:none}
+h1,h2{font-family:'Playfair Display';color:var(--gold)}
+h1{font-size:3.5rem}
+h2{font-size:2.2rem;margin-bottom:20px}
+.btn{padding:12px 30px;border-radius:50px;border:1px solid var(--gold);
+background:white;color:var(--gold);cursor:pointer}
+.btn:hover{background:var(--gold);color:white}
 
-        /* --- SLIDER LOCATION --- */
-        .slider-wrapper { background: #eee; border-radius: 30px; width: 280px; height: 45px; display: flex; position: relative; padding: 3px; margin: 20px 0; }
-        .slider-btn { flex: 1; border: none; background: transparent; cursor: pointer; z-index: 2; font-weight: 600; font-size: 0.7rem; color: #666; transition: 0.3s; }
-        .slider-btn.active { color: var(--gold); }
-        .slider-pill { position: absolute; width: calc(50% - 3px); height: calc(100% - 6px); background: white; border-radius: 25px; transition: 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28); z-index: 1; left: 3px; }
-        .move-right { transform: translateX(100%); }
+/* MAP */
+.map-box{width:300px;height:180px;border-radius:12px;overflow:hidden}
 
-        /* --- IBAN ANIMATION --- */
-        .gift-area { position: relative; width: 100%; max-width: 300px; height: 180px; }
-        .gift-box { background: var(--sage); padding: 20px; border-radius: 10px; color: white; cursor: pointer; position: relative; z-index: 5; }
-        .iban-drawer { position: absolute; width: 90%; left: 5%; bottom: 0; background: white; padding: 15px; border: 1px solid #eee; transition: 0.6s; opacity: 0; z-index: 1; }
-        .show-iban .iban-drawer { transform: translateY(110%); opacity: 1; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+/* RSVP */
+.rsvp{background:white;padding:25px;border-radius:16px;width:100%;max-width:420px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.full{grid-column:span 2}
+input,textarea{width:100%;padding:10px;border:1px solid #eee;border-radius:6px}
+.diet{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.diet div{display:flex;align-items:center;gap:6px;padding:6px;border:1px solid #eee;border-radius:6px}
 
-        /* --- RSVP GRID --- */
-        .rsvp-form { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 450px; text-align: left; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .full { grid-column: span 2; }
-        label { font-size: 0.7rem; font-weight: 600; color: #888; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #eee; border-radius: 6px; margin-top: 5px; font-family: inherit; }
-        .diet-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
-        .diet-item { font-size: 0.7rem; display: flex; align-items: center; gap: 5px; }
-        
-        .btn { display: inline-block; padding: 12px 25px; border: 1px solid var(--gold); background: white; color: var(--gold); border-radius: 50px; text-decoration: none; font-size: 0.7rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn:hover { background: var(--gold); color: white; }
-    </style>
+/* MOBILE */
+@media(max-width:768px){
+h1{font-size:2.4rem}.envelope{transform:scale(.85)}
+}
+</style>
 </head>
-<body class="locked">
+<body>
 
-    <div id="intro-overlay">
-        <div class="envelope" id="env">
-            <div class="flap"></div>
-            <div class="seal" onclick="openMe()">G&L</div>
-        </div>
-        <p style="position:absolute; bottom:15%; font-size: 0.7rem; letter-spacing: 2px; color: #666;">CLICCA PER APRIRE</p>
-    </div>
+<div id="intro">
+<canvas id="fx"></canvas>
+<div class="envelope" id="env">
+<div class="env-back"></div>
+<div class="flap"></div>
+<div class="letter"></div>
+<div class="seal" onclick="openEnv()">G&L</div>
+</div>
+<p style="position:absolute;bottom:10%;letter-spacing:3px">TOCCA LA CERALACCA</p>
+</div>
 
-    <main id="content" style="display:none;">
-        <section>
-            <div class="section-frame"></div>
-            <h1 data-aos="zoom-in" style="font-family:'Playfair Display'; font-size: 3.5rem; color: var(--gold);">Giorgia & Luca</h1>
-            <p data-aos="fade-up" style="letter-spacing: 5px;">SI SPOSANO</p>
-        </section>
+<main id="site" style="display:none">
 
-        <section>
-            <div class="section-frame"></div>
-            <h2 data-aos="fade-down">Save the Date</h2>
-            <p style="margin-bottom: 20px; font-weight: 600;">6 GIUGNO 2026</p>
-            <div class="countdown" data-aos="flip-up">
-                <div class="count-box"><span id="m-months">0</span><label>MESI</label></div>
-                <div class="count-box"><span id="m-days">0</span><label>GIORNI</label></div>
-                <div class="count-box"><span id="m-hours">0</span><label>ORE</label></div>
-                <div class="count-box"><span id="m-mins">0</span><label>MIN</label></div>
-            </div>
-            <a href="#" class="btn" style="margin-top:30px;">AGGIUNGI AL CALENDARIO</a>
-        </section>
+<section>
+<h1>Giorgia & Luca</h1>
+<p>SI SPOSANO</p>
+</section>
 
-        <section>
-            <div class="section-frame"></div>
-            <h2 data-aos="fade-down">Location</h2>
-            <div class="slider-wrapper" data-aos="fade-up">
-                <div class="slider-pill" id="pill"></div>
-                <button class="slider-btn active" id="b1" onclick="toggleMap('c')">CERIMONIA</button>
-                <button class="slider-btn" id="b2" onclick="toggleMap('r')">RICEVIMENTO</button>
-            </div>
-            <div id="loc-c" style="text-align:center;">
-                <p style="font-size:0.8rem;">Ore 16:30 - Chiesa dell'Annunziata</p>
-                <div style="width:300px; height:150px; background:#ddd; margin:15px 0; border-radius:10px;">
-                    </div>
-                <a href="#" class="btn">PORTAMI LÌ</a>
-            </div>
-            <div id="loc-r" style="display:none; text-align:center;">
-                <p style="font-size:0.8rem;">Ore 19:30 - Tenuta Le Trabe</p>
-                <div style="width:300px; height:150px; background:#ddd; margin:15px 0; border-radius:10px;">
-                    </div>
-                <a href="#" class="btn">PORTAMI LÌ</a>
-            </div>
-        </section>
+<section>
+<h2>Save the Date</h2>
+<p>Sabato 11 Luglio 2026</p>
+<p>Ore 15:00</p>
+</section>
 
-        <section>
-            <div class="section-frame"></div>
-            <h2 data-aos="fade-down">Un Pensiero per noi</h2>
-            <div class="gift-area" id="gift" onclick="this.classList.toggle('show-iban')">
-                <div class="gift-box">
-                    <i class="fa-solid fa-gift" style="font-size:2rem;"></i>
-                    <p style="font-size:0.7rem; margin-top:5px;">TOCCA PER IL REGALO</p>
-                </div>
-                <div class="iban-drawer">
-                    <p style="font-size:0.6rem; color:var(--gold); font-weight:bold;">IBAN SPOSI</p>
-                    <p id="iban" style="font-family:monospace; font-size:0.8rem; margin:10px 0;">IT00X12345678901234567890</p>
-                    <button class="btn" style="padding:5px 15px; font-size:0.6rem;" onclick="copyI()">COPIA</button>
-                </div>
-            </div>
-        </section>
+<section>
+<h2>Cerimonia</h2>
+<p>Cattedrale di Concordia Sagittaria</p>
+<div class="map-box">
+<iframe width="100%" height="100%" frameborder="0" src="https://maps.google.com/maps?q=Cattedrale%20di%20Concordia%20Sagittaria&t=&z=15&ie=UTF8&iwloc=&output=embed"></iframe>
+</div>
+<a class="btn" href="https://maps.google.com/?q=Cattedrale+di+Concordia+Sagittaria" target="_blank">Google</a>
+<a class="btn" href="https://maps.apple.com/?q=Cattedrale+di+Concordia+Sagittaria" target="_blank">Apple</a>
+</section>
 
-        <section style="height:auto; min-height:100vh; padding: 80px 20px;">
-            <div class="section-frame"></div>
-            <h2 data-aos="fade-down">R.S.V.P.</h2>
-            <div class="rsvp-form" data-aos="fade-up">
-                <div class="form-grid">
-                    <div class="full">
-                        <label>Nome e Cognome</label>
-                        <input type="text" placeholder="Nome completo">
-                    </div>
-                    <div>
-                        <label>Adulti</label>
-                        <input type="number" value="1">
-                    </div>
-                    <div>
-                        <label>Bambini</label>
-                        <input type="number" value="0">
-                    </div>
-                    <div class="full">
-                        <label>Esigenze Alimentari</label>
-                        <div class="diet-grid">
-                            <div class="diet-item"><input type="checkbox"> No Glutine</div>
-                            <div class="diet-item"><input type="checkbox"> No Lattosio</div>
-                            <div class="diet-item"><input type="checkbox"> Vegetariano</div>
-                            <div class="diet-item"><input type="checkbox"> Vegano</div>
-                            <div class="diet-item"><input type="checkbox"> Gravidanza</div>
-                            <div class="diet-item"><input type="checkbox"> No Frutta Secca</div>
-                        </div>
-                    </div>
-                    <div class="full">
-                        <label>Messaggio</label>
-                        <textarea rows="3"></textarea>
-                    </div>
-                </div>
-                <button class="btn" style="width:100%; background:var(--dark); color:white; border:none; margin-top:20px;">INVIA CONFERMA</button>
-            </div>
-        </section>
-    </main>
+<section>
+<h2>Ricevimento</h2>
+<p>Cantina Da Pitars – San Martino al Tagliamento</p>
+<p>Ore 17:00 | Festa 21:00</p>
+<div class="map-box">
+<iframe width="100%" height="100%" frameborder="0" src="https://maps.google.com/maps?q=Cantina%20Da%20Pitars&t=&z=15&ie=UTF8&iwloc=&output=embed"></iframe>
+</div>
+<a class="btn" href="https://maps.google.com/?q=Cantina+Da+Pitars" target="_blank">Google</a>
+<a class="btn" href="https://maps.apple.com/?q=Cantina+Da+Pitars" target="_blank">Apple</a>
+</section>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        AOS.init({ duration: 1000, mirror: true });
+<section>
+<h2>R.S.V.P.</h2>
+<div class="rsvp">
+<div class="grid">
+<div class="full"><input placeholder="Nome e Cognome"></div>
+<input type="number" placeholder="Adulti">
+<input type="number" placeholder="Bambini">
+<div class="full">
+<div class="diet">
+<div><input type="checkbox">No Glutine</div>
+<div><input type="checkbox">No Lattosio</div>
+<div><input type="checkbox">Vegetariano</div>
+<div><input type="checkbox">Vegano</div>
+</div>
+</div>
+<div class="full"><textarea placeholder="Messaggio"></textarea></div>
+</div>
+<button class="btn" style="width:100%;margin-top:15px;background:var(--dark);color:white">INVIA</button>
+</div>
+</section>
 
-        function openMe() {
-            document.getElementById('env').classList.add('open');
-            setTimeout(() => {
-                document.getElementById('intro-overlay').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('intro-overlay').style.display = 'none';
-                    document.getElementById('content').style.display = 'block';
-                    document.body.classList.remove('locked');
-                }, 1000);
-            }, 1000);
-        }
+</main>
 
-        function toggleMap(type) {
-            const pill = document.getElementById('pill');
-            const locC = document.getElementById('loc-c');
-            const locR = document.getElementById('loc-r');
-            const b1 = document.getElementById('b1');
-            const b2 = document.getElementById('b2');
+<script>
+/* OPEN ENVELOPE */
+function openEnv(){
+env.classList.add("open");
+setTimeout(()=>{
+intro.style.opacity=0;
+setTimeout(()=>{
+intro.style.display="none";
+site.style.display="block";
+document.body.style.overflow="auto";
+},800)
+},1200)
+}
 
-            if(type === 'r') {
-                pill.classList.add('move-right');
-                locC.style.display = 'none'; locR.style.display = 'block';
-                b2.classList.add('active'); b1.classList.remove('active');
-            } else {
-                pill.classList.remove('move-right');
-                locR.style.display = 'none'; locC.style.display = 'block';
-                b1.classList.add('active'); b2.classList.remove('active');
-            }
-        }
+/* PARTICLES */
+const c=document.getElementById("fx"),ctx=c.getContext("2d");
+c.width=innerWidth;c.height=innerHeight;
+let p=[];
+for(let i=0;i<80;i++)p.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*3+1,s:Math.random()*1+0.5});
+function draw(){
+ctx.clearRect(0,0,c.width,c.height);
+p.forEach(e=>{
+ctx.fillStyle="rgba(247,231,196,.8)";
+ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);ctx.fill();
+e.y-=e.s;if(e.y<0)e.y=c.height;
+});
+requestAnimationFrame(draw);
+}
+draw();
 
-        function copyI() {
-            navigator.clipboard.writeText(document.getElementById('iban').innerText);
-            alert("IBAN Copiato!");
-        }
-
-        const target = new Date("June 6, 2026 16:30:00").getTime();
-        setInterval(() => {
-            const now = new Date().getTime();
-            const d = target - now;
-            document.getElementById('m-months').innerText = Math.floor(d / (1000 * 60 * 60 * 24 * 30));
-            document.getElementById('m-days').innerText = Math.floor((d % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
-            document.getElementById('m-hours').innerText = Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            document.getElementById('m-mins').innerText = Math.floor((d % (1000 * 60 * 60)) / (1000 * 60));
-        }, 1000);
-    </script>
+/* SCROLL EFFECT */
+const secs=document.querySelectorAll("section");
+const obs=new IntersectionObserver(ent=>{
+ent.forEach(e=>e.target.classList.toggle("show",e.isIntersecting))
+},{threshold:.4});
+secs.forEach(s=>obs.observe(s));
+</script>
 </body>
 </html>
