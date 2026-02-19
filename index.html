@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giorgia & Luca — 11 Luglio 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & ROOT ===== */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --olive:      #5c6b40;
+  --olive-mid:  #7a8c5a;
+  --dark:       #2c3420;
+  --text:       #3a4228;
+  --text-soft:  #6a7855;
+  --pale:       #cdd5b8;
+  --white:      #f5f7ee;
+}
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  font-family:'Jost',sans-serif;
+  color:var(--text);
+  background:#e8ebe0;
+}
+
+/* ===== INTRO ===== */
+#intro {
+  position:fixed; inset:0; z-index:1000;
+  display:flex; align-items:center; justify-content:center;
+  background:radial-gradient(ellipse at 50% 38%, #f0f0ec 0%, #d8d8d2 50%, #bebeb8 100%);
+  transition:opacity .9s ease;
+}
+#intro.hide { opacity:0; pointer-events:none; }
+
+#env-wrap {
+  cursor:pointer;
+  transform-style:preserve-3d;
+  transition:transform .5s ease, filter .3s ease;
+  filter:
+    drop-shadow(0 2px 4px rgba(0,0,0,0.10))
+    drop-shadow(0 10px 22px rgba(0,0,0,0.16))
+    drop-shadow(0 30px 55px rgba(0,0,0,0.18));
+}
+#env-wrap:hover {
+  filter:
+    drop-shadow(0 3px 6px rgba(0,0,0,0.13))
+    drop-shadow(0 14px 28px rgba(0,0,0,0.20))
+    drop-shadow(0 38px 65px rgba(0,0,0,0.22));
+}
+#env-canvas { display:block; }
+
+/* ===== FX CANVAS ===== */
+#fx { position:fixed; inset:0; z-index:2000; pointer-events:none; }
+
+/* ===== PAGES ===== */
+.pg {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:40px 20px; z-index:100;
+  opacity:0; visibility:hidden;
+  will-change:transform,opacity;
+}
+.pg.active {
+  opacity:1; visibility:visible;
+  transform:none !important;
+  animation:none !important;
+}
+
+/* Drop/Jump animations */
+@keyframes dropIn  { 0%{opacity:0;transform:translateY(-105vh) scale(.97)} 60%{transform:translateY(12px) scale(1.01)} 78%{transform:translateY(-5px)} 100%{opacity:1;transform:none} }
+@keyframes jumpOut { 0%{opacity:1;transform:none} 20%{transform:translateY(-16px) scale(1.015)} 100%{opacity:0;transform:translateY(105vh) scale(.96)} }
+@keyframes riseIn  { 0%{opacity:0;transform:translateY(105vh) scale(.97)} 60%{transform:translateY(-12px) scale(1.01)} 78%{transform:translateY(5px)} 100%{opacity:1;transform:none} }
+@keyframes fallOut { 0%{opacity:1;transform:none} 20%{transform:translateY(16px) scale(1.015)} 100%{opacity:0;transform:translateY(-105vh) scale(.96)} }
+
+.drop-in  { animation:dropIn  .72s cubic-bezier(.22,1,.36,1) both; }
+.jump-out { animation:jumpOut .52s cubic-bezier(.4,0,1,1) both; }
+.rise-in  { animation:riseIn  .72s cubic-bezier(.22,1,.36,1) both; }
+.fall-out { animation:fallOut .52s cubic-bezier(.4,0,1,1) both; }
+
+/* Page backgrounds */
+#p0{background:linear-gradient(158deg,#e8ebe0,#d8dcc8)}
+#p1{background:linear-gradient(158deg,#dfe3d4,#cdd5b8)}
+#p2{background:linear-gradient(158deg,#e4e8db,#d4dac5)}
+#p3{background:linear-gradient(158deg,#dfe3d4,#cdd5b8)}
+#p4{background:linear-gradient(158deg,#e8ebe0,#d8dcc8)}
+#p5{background:linear-gradient(158deg,#dfe3d4,#cdd5b8)}
+
+/* Corner frame */
+.frame { position:absolute; inset:20px; border:1px solid rgba(92,107,64,.18); pointer-events:none; }
+.frame::before,.frame::after { content:''; position:absolute; width:22px; height:22px; border-color:var(--olive-mid); border-style:solid; }
+.frame::before { top:-1px; left:-1px; border-width:2px 0 0 2px; }
+.frame::after  { bottom:-1px; right:-1px; border-width:0 2px 2px 0; }
+
+/* ===== NAV ===== */
+#dots {
+  position:fixed; right:20px; top:50%; transform:translateY(-50%);
+  z-index:500; display:none; flex-direction:column; gap:10px;
+}
+.dot {
+  width:8px; height:8px; border-radius:50%; cursor:pointer;
+  background:rgba(92,107,64,.28); border:1px solid rgba(92,107,64,.35);
+  transition:all .3s;
+}
+.dot.on { background:var(--olive); transform:scale(1.35); }
+#arrows {
+  position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+  z-index:500; display:none; gap:12px;
+}
+.arr {
+  width:44px; height:44px; border-radius:50%; cursor:pointer;
+  background:rgba(92,107,64,.12); border:1px solid rgba(92,107,64,.30);
+  color:var(--olive); font-size:1rem;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .3s; backdrop-filter:blur(4px);
+}
+.arr:hover { background:var(--olive); color:white; }
+.arr:disabled { opacity:.28; cursor:not-allowed; pointer-events:none; }
+
+/* ===== TYPOGRAPHY ===== */
+h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(3rem,9vw,6rem); font-weight:300; color:var(--dark); line-height:1.05; text-align:center; }
+h2 { font-family:'Cormorant Garamond',serif; font-size:clamp(2rem,5vw,3rem); font-weight:400; color:var(--dark); text-align:center; }
+.lbl { font-size:.58rem; letter-spacing:5px; text-transform:uppercase; color:var(--olive-mid); font-weight:500; margin-bottom:10px; text-align:center; }
+.hr  { width:60px; height:1px; background:linear-gradient(90deg,transparent,var(--olive-mid),transparent); margin:16px auto; }
+
+/* Hero */
+.hero-bg { font-family:'Cormorant Garamond',serif; font-size:clamp(7rem,22vw,15rem); font-style:italic; color:rgba(92,107,64,.07); position:absolute; user-select:none; pointer-events:none; }
+
+/* Countdown */
+.cds { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:400px; width:100%; margin:22px auto; }
+.cb  { background:rgba(255,255,255,.55); backdrop-filter:blur(8px); padding:16px 8px; border-radius:10px; border:1px solid rgba(92,107,64,.18); text-align:center; }
+.cb span  { display:block; font-family:'Cormorant Garamond',serif; font-size:clamp(1.6rem,4vw,2.2rem); color:var(--dark); line-height:1; }
+.cb label { font-size:.52rem; letter-spacing:3px; color:var(--text-soft); text-transform:uppercase; display:block; margin-top:4px; }
+
+/* Slider */
+.sw  { background:rgba(0,0,0,.08); border-radius:50px; width:280px; height:44px; display:flex; position:relative; padding:3px; margin:18px auto; }
+.sb  { flex:1; border:none; background:transparent; cursor:pointer; z-index:2; font-weight:600; font-size:.58rem; letter-spacing:2px; color:rgba(44,52,32,.42); transition:color .3s; text-transform:uppercase; font-family:'Jost',sans-serif; }
+.sb.on { color:var(--dark); }
+.sp  { position:absolute; width:calc(50% - 3px); height:calc(100% - 6px); background:var(--white); border-radius:50px; transition:.4s cubic-bezier(.18,.89,.32,1.28); z-index:1; left:3px; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+.sp.r { transform:translateX(100%); }
+.mc  { text-align:center; max-width:360px; width:100%; }
+.ml  { font-size:.65rem; letter-spacing:3px; color:var(--text-soft); text-transform:uppercase; margin-bottom:12px; font-weight:500; }
+.mf  { border-radius:12px; overflow:hidden; box-shadow:0 8px 30px rgba(0,0,0,.13); border:1px solid rgba(92,107,64,.2); }
+.mf iframe { display:block; }
+
+/* Timeline */
+.tls { max-width:380px; width:100%; margin-top:22px; }
+.tl  { display:flex; align-items:center; gap:18px; padding:18px 0; border-bottom:1px solid rgba(92,107,64,.13); }
+.tl:last-child { border-bottom:none; }
+.tli { width:46px; height:46px; border-radius:50%; flex-shrink:0; background:rgba(255,255,255,.5); border:1px solid rgba(92,107,64,.26); display:flex; align-items:center; justify-content:center; }
+.tlt { font-size:.58rem; letter-spacing:3px; color:var(--olive-mid); text-transform:uppercase; font-weight:600; }
+.tld { font-size:.92rem; color:var(--text); margin-top:2px; }
+
+/* Regalo */
+.gw { max-width:320px; width:100%; margin-top:22px; }
+.gb { background:var(--olive); padding:28px 24px; border-radius:12px; color:white; cursor:pointer; text-align:center; box-shadow:0 10px 30px rgba(44,52,32,.22); transition:transform .3s; }
+.gb:hover { transform:translateY(-3px); }
+.gb svg { width:36px; height:36px; }
+.gl { font-size:.6rem; letter-spacing:4px; margin-top:10px; text-transform:uppercase; }
+.is { overflow:hidden; max-height:0; transition:max-height .6s cubic-bezier(.4,0,.2,1); background:rgba(255,255,255,.62); border:1px solid rgba(92,107,64,.2); border-radius:0 0 12px 12px; text-align:center; }
+.gw.open .is { max-height:160px; }
+.ii { padding:20px; }
+.it { font-size:.55rem; letter-spacing:4px; color:var(--olive); font-weight:600; text-transform:uppercase; }
+.iv { font-family:'Courier New',monospace; font-size:.82rem; color:var(--dark); margin:10px 0; }
+
+/* RSVP */
+.rsvp { background:rgba(255,255,255,.6); backdrop-filter:blur(12px); padding:30px 26px; border-radius:16px; width:100%; max-width:460px; border:1px solid rgba(92,107,64,.16); box-shadow:0 12px 40px rgba(0,0,0,.07); max-height:72vh; overflow-y:auto; }
+.fg { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.ful { grid-column:span 2; }
+.fl { font-size:.58rem; font-weight:600; color:var(--text-soft); text-transform:uppercase; letter-spacing:2px; display:block; margin-bottom:5px; }
+.fi { width:100%; padding:11px 13px; border:1px solid rgba(92,107,64,.2); border-radius:8px; font-family:'Jost',sans-serif; font-size:.85rem; color:var(--dark); background:rgba(255,255,255,.72); outline:none; transition:border-color .25s; }
+.fi:focus { border-color:var(--olive-mid); box-shadow:0 0 0 3px rgba(92,107,64,.1); }
+.dg { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:7px; }
+.di { font-size:.7rem; display:flex; align-items:center; gap:7px; padding:8px 10px; border:1px solid rgba(92,107,64,.16); border-radius:7px; cursor:pointer; background:rgba(255,255,255,.52); transition:border-color .25s; }
+.di:hover { border-color:var(--olive-mid); }
+.di input { width:auto; padding:0; accent-color:var(--olive); }
+
+/* Buttons */
+.btn { display:inline-flex; align-items:center; gap:7px; padding:12px 26px; border:1px solid var(--olive); background:transparent; color:var(--olive); border-radius:50px; text-decoration:none; font-size:.62rem; font-weight:600; letter-spacing:3px; text-transform:uppercase; cursor:pointer; transition:all .3s; font-family:'Jost',sans-serif; margin-top:12px; }
+.btn:hover { background:var(--olive); color:white; }
+.btnd { background:var(--dark); color:white; border-color:var(--dark); width:100%; justify-content:center; margin-top:22px; }
+.btnd:hover { background:var(--olive); border-color:var(--olive); }
+
+@media(max-width:600px){.fg{grid-template-columns:1fr;}.ful{grid-column:span 1;}.rsvp{padding:20px 14px;}}
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+  <div id="env-wrap" onclick="clickSeal()">
+    <canvas id="env-canvas"></canvas>
+  </div>
+</div>
+
+<!-- PARTICLES -->
+<canvas id="fx"></canvas>
+
+<!-- NAV -->
+<div id="dots">
+  <div class="dot on"  onclick="goTo(0)"></div>
+  <div class="dot"     onclick="goTo(1)"></div>
+  <div class="dot"     onclick="goTo(2)"></div>
+  <div class="dot"     onclick="goTo(3)"></div>
+  <div class="dot"     onclick="goTo(4)"></div>
+  <div class="dot"     onclick="goTo(5)"></div>
+</div>
+<div id="arrows">
+  <button class="arr" id="aprev" onclick="nav(-1)" disabled>↑</button>
+  <button class="arr" id="anext" onclick="nav(1)">↓</button>
+</div>
+
+<!-- PAGE 0: HERO -->
+<div class="pg" id="p0">
+  <div class="frame"></div>
+  <div class="hero-bg">G&amp;L</div>
+  <div style="position:relative;z-index:1;text-align:center;">
+    <h1>Giorgia<br><em style="color:var(--olive-mid);opacity:.5;font-size:.48em;">&amp;</em><br>Luca</h1>
+    <div class="hr"></div>
+    <p class="lbl" style="margin:0;">11 · VII · MMXXVI</p>
+  </div>
+</div>
+
+<!-- PAGE 1: SAVE THE DATE -->
+<div class="pg" id="p1">
+  <div class="frame"></div>
+  <p class="lbl">Segnate sul calendario</p>
+  <h2>Save the Date</h2>
+  <div class="hr"></div>
+  <p style="font-size:.75rem;letter-spacing:3px;color:var(--text-soft);text-align:center;">Sabato 11 Luglio 2026 — Ore 15:00</p>
+  <div class="cds">
+    <div class="cb"><span id="cm">—</span><label>Mesi</label></div>
+    <div class="cb"><span id="cd">—</span><label>Giorni</label></div>
+    <div class="cb"><span id="ch">—</span><label>Ore</label></div>
+    <div class="cb"><span id="cn">—</span><label>Min</label></div>
+  </div>
+  <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Giorgia+%26+Luca+Matrimonio&dates=20260711T150000/20260711T180000" target="_blank" class="btn">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Aggiungi al Calendario
+  </a>
+</div>
+
+<!-- PAGE 2: LOCATION -->
+<div class="pg" id="p2">
+  <div class="frame"></div>
+  <p class="lbl">Vi aspettiamo qui</p>
+  <h2>Location</h2>
+  <div class="sw">
+    <div class="sp" id="pill"></div>
+    <button class="sb on" id="b1" onclick="tmap('c')">Cerimonia</button>
+    <button class="sb"    id="b2" onclick="tmap('r')">Ricevimento</button>
+  </div>
+  <div id="lc" class="mc">
+    <p class="ml">
+      <svg style="vertical-align:middle;margin-right:5px;" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11.8A8 8 0 0 0 4 10.2C4 17.5 12 22 12 22z"/><circle cx="12" cy="10" r="3"/></svg>
+      Ore 15:00 · Cattedrale di Concordia Sagittaria
+    </p>
+    <div class="mf"><iframe src="https://maps.google.com/maps?q=Cattedrale+di+Concordia+Sagittaria&output=embed&z=15" width="100%" height="200" frameborder="0" allowfullscreen loading="lazy"></iframe></div>
+    <a href="https://www.google.com/maps/search/Cattedrale+di+Concordia+Sagittaria" target="_blank" class="btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11.8A8 8 0 0 0 4 10.2C4 17.5 12 22 12 22z"/><circle cx="12" cy="10" r="3"/></svg>Portami Lì
+    </a>
+  </div>
+  <div id="lr" class="mc" style="display:none;">
+    <p class="ml">
+      <svg style="vertical-align:middle;margin-right:5px;" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11.8A8 8 0 0 0 4 10.2C4 17.5 12 22 12 22z"/><circle cx="12" cy="10" r="3"/></svg>
+      Ore 17:00 · Cantina da Pitars, San Martino al Tagliamento
+    </p>
+    <div class="mf"><iframe src="https://maps.google.com/maps?q=Cantina+da+Pitars+San+Martino+al+Tagliamento&output=embed&z=14" width="100%" height="200" frameborder="0" allowfullscreen loading="lazy"></iframe></div>
+    <a href="https://www.google.com/maps/search/Cantina+da+Pitars+San+Martino+al+Tagliamento" target="_blank" class="btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4.5 8-11.8A8 8 0 0 0 4 10.2C4 17.5 12 22 12 22z"/><circle cx="12" cy="10" r="3"/></svg>Portami Lì
+    </a>
+  </div>
+</div>
+
+<!-- PAGE 3: PROGRAMMA -->
+<div class="pg" id="p3">
+  <div class="frame"></div>
+  <p class="lbl">La nostra giornata</p>
+  <h2>Programma</h2>
+  <div class="hr"></div>
+  <div class="tls">
+    <div class="tl">
+      <div class="tli"><svg viewBox="0 0 24 24" fill="none" stroke="var(--olive)" stroke-width="1.5" width="20" height="20"><path d="M12 2v4M10 4h4"/><path d="M5 22V10l7-6 7 6v12H5z"/><rect x="9" y="14" width="6" height="8"/></svg></div>
+      <div><div class="tlt">Ore 15:00</div><div class="tld">Santa Messa — Cattedrale di Concordia</div></div>
+    </div>
+    <div class="tl">
+      <div class="tli"><svg viewBox="0 0 24 24" fill="none" stroke="var(--olive)" stroke-width="1.5" width="20" height="20"><path d="M8 22h8M12 22V11M6 3l2 8h8l2-8H6z"/></svg></div>
+      <div><div class="tlt">Ore 17:00</div><div class="tld">Ricevimento — Cantina da Pitars</div></div>
+    </div>
+    <div class="tl">
+      <div class="tli"><svg viewBox="0 0 24 24" fill="none" stroke="var(--olive)" stroke-width="1.5" width="20" height="20"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></div>
+      <div><div class="tlt">Ore 21:00</div><div class="tld">Festa & Balli — Sino a tardi!</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 4: REGALO -->
+<div class="pg" id="p4">
+  <div class="frame"></div>
+  <p class="lbl">Con affetto</p>
+  <h2>Un Pensiero per Noi</h2>
+  <div class="hr"></div>
+  <p style="font-size:.8rem;color:var(--text-soft);max-width:300px;text-align:center;line-height:1.9;">La vostra presenza è già il dono più bello. Se volete contribuire al nostro viaggio di nozze:</p>
+  <div class="gw" id="gift">
+    <div class="gb" onclick="document.getElementById('gift').classList.toggle('open')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><rect x="3" y="8" width="18" height="13" rx="1"/><path d="M21 8H3V6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v2z"/><line x1="12" y1="8" x2="12" y2="21"/><path d="M12 8c0-2 1.5-3.5 2-3.5s-.5 3.5-2 3.5zM12 8c0-2-1.5-3.5-2-3.5s.5 3.5 2 3.5z"/></svg>
+      <p class="gl">Tocca per i dettagli</p>
+    </div>
+    <div class="is">
+      <div class="ii">
+        <p class="it">IBAN Sposi</p>
+        <p class="iv" id="iban">IT00 X123 4567 8901 2345 6789 0</p>
+        <button class="btn" style="margin-top:6px;padding:8px 18px;" onclick="copyIban(event)">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copia IBAN
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: RSVP -->
+<div class="pg" id="p5">
+  <div class="frame"></div>
+  <p class="lbl">Fateci sapere</p>
+  <h2>R.S.V.P.</h2>
+  <div class="hr"></div>
+  <div class="rsvp">
+    <div class="fg">
+      <div class="ful"><label class="fl">Nome e Cognome</label><input class="fi" type="text" placeholder="Il vostro nome completo"></div>
+      <div><label class="fl">Adulti</label><input class="fi" type="number" value="1" min="1"></div>
+      <div><label class="fl">Bambini</label><input class="fi" type="number" value="0" min="0"></div>
+      <div class="ful">
+        <label class="fl">Esigenze Alimentari</label>
+        <div class="dg">
+          <div class="di"><input type="checkbox"> No Glutine</div>
+          <div class="di"><input type="checkbox"> No Lattosio</div>
+          <div class="di"><input type="checkbox"> Vegetariano</div>
+          <div class="di"><input type="checkbox"> Vegano</div>
+          <div class="di"><input type="checkbox"> Gravidanza</div>
+          <div class="di"><input type="checkbox"> No Frutta Secca</div>
+        </div>
+      </div>
+      <div class="ful"><label class="fl">Messaggio per noi</label><textarea class="fi" rows="3" placeholder="Un augurio, una canzone..."></textarea></div>
+    </div>
+    <button class="btn btnd">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Invia Conferma
+    </button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* =====================================================
+   ENVELOPE — Canvas, pixel-perfect white/ivory
+   matching reference image (TikTok @studio_invito_digitale)
+===================================================== */
+const envCanvas = document.getElementById('env-canvas');
+const eCtx = envCanvas.getContext('2d');
+let EW = 0, EH = 0;
+
+function initEnvSize() {
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  if (vw < 600) {
+    // Mobile: portrait like reference
+    EW = Math.min(vw * 0.82, 340);
+    EH = EW * 1.32;
+  } else {
+    // Desktop: landscape envelope
+    EW = Math.min(vw * 0.52, 480);
+    EH = EW * 0.65;
+  }
+  envCanvas.width  = EW;
+  envCanvas.height = EH;
+  envCanvas.style.width  = EW + 'px';
+  envCanvas.style.height = EH + 'px';
+}
+
+/* Noise helpers */
+function nv(x, y) {
+  const v = Math.sin(x * 127.1 + y * 311.7) * 43758.545;
+  return v - Math.floor(v);
+}
+function fbm(x, y, oct) {
+  let v = 0, a = 0.5, f = 1;
+  for (let i = 0; i < oct; i++) {
+    v += a * (nv(x * f, y * f) - 0.5);
+    a *= 0.5; f *= 2;
+  }
+  return v;
+}
+
+/* Rounded rect path */
+function rrect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y); ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r); ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h); ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r); ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+/* Draw the full envelope at a given flap angle (0=closed, PI=open) */
+function drawEnv(flapAngle) {
+  if (!EW || !EH) return;
+  eCtx.clearRect(0, 0, EW, EH);
+
+  const W = EW, H = EH, R = 6;
+  // The V-fold meeting point — center of envelope
+  const FX = W / 2;
+  const FY = H * 0.50;
+
+  /* ---- 1. Body clip ---- */
+  eCtx.save();
+  rrect(eCtx, 0, 0, W, H, R);
+  eCtx.clip();
+
+  // White/ivory base paper
+  const base = eCtx.createLinearGradient(0, 0, 0, H);
+  base.addColorStop(0,   '#fefefc');
+  base.addColorStop(0.5, '#f9f7f3');
+  base.addColorStop(1,   '#f4f0ea');
+  eCtx.fillStyle = base;
+  eCtx.fillRect(0, 0, W, H);
+
+  // Soft ambient light top-left (photographic look)
+  const amb = eCtx.createRadialGradient(W * 0.25, H * 0.18, 0, W * 0.5, H * 0.5, W * 0.85);
+  amb.addColorStop(0, 'rgba(255,255,252,0.32)');
+  amb.addColorStop(1, 'rgba(235,228,215,0)');
+  eCtx.fillStyle = amb;
+  eCtx.fillRect(0, 0, W, H);
+
+  // ---- Fold triangles ----
+  // Bottom V (most visible in reference photo)
+  eCtx.beginPath();
+  eCtx.moveTo(0, H); eCtx.lineTo(FX, FY); eCtx.lineTo(W, H);
+  eCtx.closePath();
+  const bV = eCtx.createLinearGradient(FX, FY, FX, H);
+  bV.addColorStop(0, 'rgba(195, 188, 175, 0.60)');
+  bV.addColorStop(1, 'rgba(175, 168, 155, 0.38)');
+  eCtx.fillStyle = bV; eCtx.fill();
+
+  // Left V
+  eCtx.beginPath();
+  eCtx.moveTo(0, 0); eCtx.lineTo(FX, FY); eCtx.lineTo(0, H);
+  eCtx.closePath();
+  const lV = eCtx.createLinearGradient(0, 0, W * 0.42, 0);
+  lV.addColorStop(0, 'rgba(188, 182, 168, 0.52)');
+  lV.addColorStop(1, 'rgba(210, 204, 192, 0.20)');
+  eCtx.fillStyle = lV; eCtx.fill();
+
+  // Right V
+  eCtx.beginPath();
+  eCtx.moveTo(W, 0); eCtx.lineTo(FX, FY); eCtx.lineTo(W, H);
+  eCtx.closePath();
+  const rV = eCtx.createLinearGradient(W * 0.58, 0, W, 0);
+  rV.addColorStop(0, 'rgba(210, 204, 192, 0.20)');
+  rV.addColorStop(1, 'rgba(188, 182, 168, 0.52)');
+  eCtx.fillStyle = rV; eCtx.fill();
+
+  // Fold edge lines (barely visible, like reference)
+  eCtx.save();
+  eCtx.strokeStyle = 'rgba(150, 140, 122, 0.30)';
+  eCtx.lineWidth = 0.8;
+  eCtx.beginPath(); eCtx.moveTo(0, H); eCtx.lineTo(FX, FY); eCtx.lineTo(W, H); eCtx.stroke();
+  eCtx.beginPath(); eCtx.moveTo(0, 0); eCtx.lineTo(FX, FY); eCtx.stroke();
+  eCtx.beginPath(); eCtx.moveTo(W, 0); eCtx.lineTo(FX, FY); eCtx.stroke();
+  eCtx.restore();
+
+  // Envelope border
+  rrect(eCtx, 0, 0, W, H, R);
+  eCtx.strokeStyle = 'rgba(175, 165, 148, 0.40)';
+  eCtx.lineWidth = 1;
+  eCtx.stroke();
+
+  eCtx.restore(); // end body clip
+
+  /* ---- 2. Flap ---- */
+  if (flapAngle < Math.PI * 0.99) {
+    const cosA = Math.cos(flapAngle);
+    const front = cosA >= 0;
+
+    eCtx.save();
+    eCtx.translate(FX, 0);
+    eCtx.scale(1, cosA);
+    eCtx.translate(-FX, 0);
+
+    rrect(eCtx, 0, 0, W, H, R);
+    eCtx.clip();
+
+    eCtx.beginPath();
+    eCtx.moveTo(0, 0); eCtx.lineTo(FX, FY); eCtx.lineTo(W, 0);
+    eCtx.closePath();
+
+    if (front) {
+      const fV = eCtx.createLinearGradient(FX, 0, FX, FY);
+      fV.addColorStop(0,   '#fefefc');
+      fV.addColorStop(0.6, '#f5f1ea');
+      fV.addColorStop(1,   '#ece7de');
+      eCtx.fillStyle = fV;
+    } else {
+      // Inside of flap
+      const fV2 = eCtx.createLinearGradient(FX, 0, FX, FY);
+      fV2.addColorStop(0, '#e5e0d6');
+      fV2.addColorStop(1, '#d8d3c8');
+      eCtx.fillStyle = fV2;
+    }
+    eCtx.fill();
+
+    // Crease at fold point
+    if (front) {
+      eCtx.save();
+      const crease = eCtx.createLinearGradient(0, FY - 8, 0, FY + 2);
+      crease.addColorStop(0, 'rgba(0,0,0,0)');
+      crease.addColorStop(0.8, 'rgba(0,0,0,0.07)');
+      crease.addColorStop(1, 'rgba(0,0,0,0)');
+      eCtx.fillStyle = crease;
+      eCtx.fillRect(0, FY - 8, W, 10);
+      eCtx.restore();
+    }
+
+    eCtx.save();
+    eCtx.strokeStyle = 'rgba(140, 132, 115, 0.28)';
+    eCtx.lineWidth = 0.8;
+    eCtx.beginPath(); eCtx.moveTo(0, 0); eCtx.lineTo(FX, FY); eCtx.lineTo(W, 0); eCtx.stroke();
+    eCtx.restore();
+
+    eCtx.restore();
+  }
+
+  /* ---- 3. Wax seal (only while flap is closed) ---- */
+  if (flapAngle < 0.25) {
+    const sealR = Math.min(W, H) * 0.135;
+    drawSeal(eCtx, FX, FY, sealR);
+  }
+}
+
+/* =====================================================
+   WAX SEAL — olive/sage green matching reference
+   Matte, textured, realistic incision
+===================================================== */
+function drawSeal(ctx, cx, cy, r) {
+  ctx.save();
+
+  // Ambient glow around seal
+  const glow = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r * 2.0);
+  glow.addColorStop(0, 'rgba(70, 95, 50, 0.20)');
+  glow.addColorStop(1, 'rgba(70, 95, 50, 0)');
+  ctx.fillStyle = glow;
+  ctx.beginPath(); ctx.arc(cx, cy, r * 2.0, 0, Math.PI * 2); ctx.fill();
+
+  // Organic shape path function
+  function sealPath() {
+    ctx.beginPath();
+    const N = 80;
+    for (let i = 0; i <= N; i++) {
+      const a = (i / N) * Math.PI * 2;
+      const nx = Math.cos(a) * 0.42 + 0.52;
+      const ny = Math.sin(a) * 0.42 + 0.52;
+      const d = 1 + fbm(nx * 3.0, ny * 3.0, 5) * 0.22 + fbm(nx * 7, ny * 7, 2) * 0.05;
+      const pr = r * d;
+      const px = cx + Math.cos(a) * pr;
+      const py = cy + Math.sin(a) * pr;
+      if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  // Drop shadow
+  ctx.shadowColor = 'rgba(25, 40, 15, 0.55)';
+  ctx.shadowBlur = 16;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 7;
+  sealPath();
+
+  // Base fill — sage olive green
+  const base = ctx.createRadialGradient(cx - r * 0.2, cy - r * 0.22, 0, cx, cy, r * 1.05);
+  base.addColorStop(0,    '#8aaa72');  // highlight zone
+  base.addColorStop(0.18, '#6f9058');
+  base.addColorStop(0.45, '#587045');
+  base.addColorStop(0.75, '#415335');
+  base.addColorStop(1,    '#2c3a22');
+  ctx.fillStyle = base;
+  sealPath();
+  ctx.fill();
+  ctx.shadowColor = 'transparent';
+
+  // Edge darkening
+  const edge = ctx.createRadialGradient(cx, cy, r * 0.7, cx, cy, r * 1.02);
+  edge.addColorStop(0, 'rgba(0,0,0,0)');
+  edge.addColorStop(1, 'rgba(0,0,0,0.40)');
+  sealPath(); ctx.fillStyle = edge; ctx.fill();
+
+  // Soft matte highlight (not glossy — like reference)
+  ctx.save();
+  ctx.globalCompositeOperation = 'screen';
+  const hi = ctx.createRadialGradient(cx - r * 0.28, cy - r * 0.30, 0, cx - r * 0.06, cy - r * 0.06, r * 0.62);
+  hi.addColorStop(0, 'rgba(180, 215, 145, 0.42)');
+  hi.addColorStop(0.5, 'rgba(155, 190, 120, 0.12)');
+  hi.addColorStop(1, 'rgba(130, 165, 95, 0)');
+  sealPath(); ctx.fillStyle = hi; ctx.fill();
+  ctx.restore();
+
+  // ---- Incised monogram G & L ----
+  ctx.save();
+  const fs = r * 0.44;
+  ctx.font = `italic ${fs}px 'Cormorant Garamond', Georgia, serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  // Deep engraved shadow
+  ctx.fillStyle = 'rgba(15, 25, 8, 0.75)';
+  ctx.fillText('G & L', cx + 0.8, cy + 1.3);
+  // Lighter incision face
+  ctx.fillStyle = 'rgba(130, 165, 95, 0.55)';
+  ctx.fillText('G & L', cx, cy);
+  ctx.restore();
+
+  // ---- Decorative crown ----
+  ctx.save();
+  ctx.strokeStyle = 'rgba(18, 28, 10, 0.38)';
+  ctx.lineWidth = 0.9;
+  ctx.lineCap = 'round';
+  const ty = cy - r * 0.39;
+  const cw = r * 0.42;
+  ctx.beginPath();
+  ctx.moveTo(cx - cw, ty);
+  ctx.lineTo(cx - cw * 0.60, ty - r * 0.13);
+  ctx.lineTo(cx - cw * 0.24, ty + r * 0.03);
+  ctx.lineTo(cx, ty - r * 0.16);
+  ctx.lineTo(cx + cw * 0.24, ty + r * 0.03);
+  ctx.lineTo(cx + cw * 0.60, ty - r * 0.13);
+  ctx.lineTo(cx + cw, ty);
+  ctx.stroke();
+  ctx.restore();
+
+  // ---- Year text ----
+  ctx.save();
+  ctx.font = `500 ${r * 0.20}px 'Jost', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = 'rgba(18, 28, 10, 0.38)';
+  ctx.fillText('2026', cx, cy + r * 0.47);
+  ctx.restore();
+
+  // ---- Ring dots ----
+  for (let i = 0; i < 10; i++) {
+    const a = (i / 10) * Math.PI * 2;
+    ctx.fillStyle = 'rgba(18, 28, 10, 0.24)';
+    ctx.beginPath();
+    ctx.arc(cx + Math.cos(a) * r * 0.87, cy + Math.sin(a) * r * 0.87, 1.1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+
+/* =====================================================
+   PARTICLE EXPLOSION — olive/sage chips
+===================================================== */
+const fxCanvas = document.getElementById('fx');
+const fCtx = fxCanvas.getContext('2d');
+let chips = [], fxRunning = false;
+
+function resizeFx() {
+  fxCanvas.width = window.innerWidth;
+  fxCanvas.height = window.innerHeight;
+}
+resizeFx();
+window.addEventListener('resize', resizeFx);
+
+const CHIP_COLS = ['#8aaa72', '#6f9058', '#587045', '#415335', '#9aba82', '#4f6840', '#7a9a62'];
+
+function lgt(h, a) {
+  return `rgb(${Math.min(255, parseInt(h.slice(1,3), 16) + a)},${Math.min(255, parseInt(h.slice(3,5), 16) + a)},${Math.min(255, parseInt(h.slice(5,7), 16) + a)})`;
+}
+function dkn(h, a) {
+  return `rgb(${Math.max(0, parseInt(h.slice(1,3), 16) - a)},${Math.max(0, parseInt(h.slice(3,5), 16) - a)},${Math.max(0, parseInt(h.slice(5,7), 16) - a)})`;
+}
+
+class Chip {
+  constructor(ox, oy) {
+    const a = Math.random() * Math.PI * 2;
+    const sp = 4 + Math.random() * 11;
+    this.x = ox + (Math.random() - 0.5) * 24;
+    this.y = oy + (Math.random() - 0.5) * 24;
+    this.vx = Math.cos(a) * sp;
+    this.vy = Math.sin(a) * sp - Math.random() * 4;
+    this.g = 0.18 + Math.random() * 0.10;
+    this.r = 4 + Math.random() * 12;
+    this.life = 1;
+    this.dec = 0.011 + Math.random() * 0.016;
+    this.rot = Math.random() * Math.PI * 2;
+    this.rv = (Math.random() - 0.5) * 0.10;
+    this.col = CHIP_COLS[Math.floor(Math.random() * CHIP_COLS.length)];
+    this.melt = Math.random() > 0.5;
+    this.sx = 1; this.sy = 1;
+  }
+  update() {
+    this.vx *= 0.977; this.vy += this.g; this.vy *= 0.981;
+    this.x += this.vx; this.y += this.vy;
+    this.rot += this.rv; this.life -= this.dec;
+    if (this.melt && this.life < 0.38) {
+      this.sx = 1 + (0.38 - this.life) * 5;
+      this.sy = Math.max(0.10, 1 - (0.38 - this.life) * 3);
+    }
+  }
+  draw() {
+    fCtx.save();
+    fCtx.globalAlpha = Math.max(0, this.life);
+    fCtx.translate(this.x, this.y);
+    fCtx.rotate(this.rot);
+    fCtx.scale(this.sx, this.sy);
+    fCtx.beginPath();
+    const sides = 5 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < sides; i++) {
+      const a2 = (i / sides) * Math.PI * 2;
+      const pr = this.r * (0.65 + Math.random() * 0.5);
+      if (i === 0) fCtx.moveTo(Math.cos(a2) * pr, Math.sin(a2) * pr);
+      else fCtx.lineTo(Math.cos(a2) * pr, Math.sin(a2) * pr);
+    }
+    fCtx.closePath();
+    const gr = fCtx.createRadialGradient(-this.r * 0.2, -this.r * 0.25, 0, 0, 0, this.r);
+    gr.addColorStop(0, lgt(this.col, 45));
+    gr.addColorStop(0.5, this.col);
+    gr.addColorStop(1, dkn(this.col, 45));
+    fCtx.fillStyle = gr; fCtx.fill();
+    fCtx.restore();
+  }
+}
+
+function explode(cx, cy) {
+  for (let i = 0; i < 240; i++) chips.push(new Chip(cx, cy));
+}
+
+function fxTick() {
+  if (!fxRunning) return;
+  fCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
+  chips = chips.filter(c => c.life > 0);
+  chips.forEach(c => { c.update(); c.draw(); });
+  if (chips.length > 0) requestAnimationFrame(fxTick);
+  else { fCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height); fxRunning = false; }
+}
+
+/* =====================================================
+   OPEN ENVELOPE SEQUENCE
+===================================================== */
+let opened = false;
+
+function clickSeal() {
+  if (opened) return;
+  opened = true;
+
+  // Seal world position
+  const rect = envCanvas.getBoundingClientRect();
+  const cx = rect.left + EW / 2;
+  const cy = rect.top + EH * 0.50;
+
+  fxRunning = true;
+  explode(cx, cy);
+  fxTick();
+
+  // Animate flap opening
+  let t0 = null;
+  function animFlap(ts) {
+    if (!t0) t0 = ts;
+    const t = Math.min(1, (ts - t0) / 1100);
+    const ease = 1 - Math.pow(1 - t, 3);
+    drawEnv(ease * Math.PI);
+    if (t < 1) {
+      requestAnimationFrame(animFlap);
+    } else {
+      // Fade out intro
+      document.getElementById('intro').classList.add('hide');
+      setTimeout(showSite, 900);
+    }
+  }
+  requestAnimationFrame(animFlap);
+}
+
+function showSite() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('dots').style.display = 'flex';
+  document.getElementById('arrows').style.display = 'flex';
+  showPage(0);
+  startCountdown();
+}
+
+/* =====================================================
+   PAGE NAVIGATION
+===================================================== */
+const PAGE_IDS = ['p0', 'p1', 'p2', 'p3', 'p4', 'p5'];
+let cur = -1;
+let animating = false;
+const ANIM_MS = 720;
+
+function showPage(idx) {
+  const el = document.getElementById(PAGE_IDS[idx]);
+  el.className = 'pg active';
+  cur = idx;
+  updateNav();
+}
+
+function goTo(idx) {
+  if (animating || idx === cur || idx < 0 || idx >= PAGE_IDS.length) return;
+  const dir = idx > cur ? 1 : -1;
+  changePage(idx, dir);
+}
+
+function nav(dir) {
+  goTo(cur + dir);
+}
+
+function changePage(next, dir) {
+  if (animating) return;
+  animating = true;
+
+  const outEl = document.getElementById(PAGE_IDS[cur]);
+  const inEl  = document.getElementById(PAGE_IDS[next]);
+
+  // Prepare incoming
+  inEl.style.visibility = 'hidden';
+  inEl.style.opacity = '0';
+  inEl.className = 'pg';
+
+  // Animate out
+  if (dir > 0) {
+    outEl.className = 'pg jump-out';
+  } else {
+    outEl.className = 'pg fall-out';
+  }
+
+  // Short delay then bring in
+  setTimeout(() => {
+    inEl.style.visibility = '';
+    inEl.style.opacity = '';
+    if (dir > 0) {
+      inEl.className = 'pg drop-in';
+    } else {
+      inEl.className = 'pg rise-in';
+    }
+    cur = next;
+    updateNav();
+  }, 80);
+
+  // Cleanup after animation
+  setTimeout(() => {
+    outEl.className = 'pg';
+    inEl.className = 'pg active';
+    animating = false;
+  }, ANIM_MS + 80);
+}
+
+function updateNav() {
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === cur));
+  document.getElementById('aprev').disabled = cur === 0;
+  document.getElementById('anext').disabled = cur === PAGE_IDS.length - 1;
+}
+
+/* Keyboard */
+document.addEventListener('keydown', e => {
+  if (cur < 0) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') nav(1);
+  if (e.key === 'ArrowUp'   || e.key === 'ArrowLeft')  nav(-1);
+});
+
+/* Touch swipe */
+let tY = null;
+document.addEventListener('touchstart', e => { tY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+  if (tY === null) return;
+  const dy = e.changedTouches[0].clientY - tY;
+  if (Math.abs(dy) > 48) nav(dy < 0 ? 1 : -1);
+  tY = null;
+});
+
+/* =====================================================
+   UTILITIES
+===================================================== */
+function tmap(t) {
+  const p = document.getElementById('pill');
+  const b1 = document.getElementById('b1'), b2 = document.getElementById('b2');
+  const lc = document.getElementById('lc'), lr = document.getElementById('lr');
+  if (t === 'r') {
+    p.classList.add('r'); lc.style.display = 'none'; lr.style.display = 'block';
+    b2.classList.add('on'); b1.classList.remove('on');
+  } else {
+    p.classList.remove('r'); lr.style.display = 'none'; lc.style.display = 'block';
+    b1.classList.add('on'); b2.classList.remove('on');
+  }
+}
+
+function copyIban(e) {
+  e.stopPropagation();
+  navigator.clipboard.writeText(document.getElementById('iban').innerText.replace(/\s/g, ''));
+  const btn = e.currentTarget, orig = btn.innerHTML;
+  btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copiato!';
+  btn.style.background = 'var(--olive)'; btn.style.color = 'white'; btn.style.borderColor = 'var(--olive)';
+  setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; btn.style.color = ''; btn.style.borderColor = ''; }, 2200);
+}
+
+function startCountdown() {
+  const T = new Date('July 11, 2026 15:00:00').getTime();
+  function tick() {
+    const d = T - Date.now();
+    if (d < 0) return;
+    document.getElementById('cm').textContent = Math.floor(d / (1000 * 60 * 60 * 24 * 30.44));
+    document.getElementById('cd').textContent = Math.floor((d % (1000 * 60 * 60 * 24 * 30.44)) / (1000 * 60 * 60 * 24));
+    document.getElementById('ch').textContent = Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    document.getElementById('cn').textContent = Math.floor((d % (1000 * 60 * 60)) / (1000 * 60));
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+/* =====================================================
+   MOUSE TILT ON INTRO
+===================================================== */
+const introEl = document.getElementById('intro');
+const envWrap = document.getElementById('env-wrap');
+
+introEl.addEventListener('mousemove', e => {
+  const rect = envCanvas.getBoundingClientRect();
+  const dx = (e.clientX - (rect.left + EW / 2)) / (window.innerWidth * 0.5);
+  const dy = (e.clientY - (rect.top + EH / 2)) / (window.innerHeight * 0.5);
+  envWrap.style.transform = `perspective(1000px) rotateX(${-dy * 6}deg) rotateY(${dx * 8}deg)`;
+  envWrap.style.transition = 'transform 0.08s linear, filter 0.3s ease';
+});
+introEl.addEventListener('mouseleave', () => {
+  envWrap.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+  envWrap.style.transition = 'transform 0.6s ease, filter 0.3s ease';
+});
+
+/* =====================================================
+   INIT — must run after DOM is ready
+===================================================== */
+window.addEventListener('load', () => {
+  initEnvSize();
+  drawEnv(0);
+  window.addEventListener('resize', () => {
+    initEnvSize();
+    drawEnv(0);
+    resizeFx();
+  });
+});
+</script>
+</body>
+</html>
